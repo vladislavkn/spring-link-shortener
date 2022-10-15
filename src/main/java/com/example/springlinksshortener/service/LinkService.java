@@ -9,6 +9,7 @@ import com.example.springlinksshortener.repository.LinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -21,8 +22,9 @@ public class LinkService {
     }
 
     public Link getLinkByHash(String hash) {
-        Link link = repository.findByHash(hash);
-        if (link == null) throw new LinkNotFoundException(hash);
+        Optional<Link> mayBeLink = repository.findByHash(hash);
+        if (mayBeLink.isEmpty()) throw new LinkNotFoundException(hash);
+        Link link = mayBeLink.get();
 
         if(link.isExpired()) {
             repository.deleteById(link.getId());
@@ -37,9 +39,9 @@ public class LinkService {
     }
 
     public void deleteLinkByHash(String hash) {
-        Link link = repository.findByHash(hash);
-        if (link == null) throw new LinkNotFoundException(hash);
-        repository.deleteById(link.getId());
+        Optional<Link> mayBeLink = repository.findByHash(hash);
+        if (mayBeLink.isEmpty()) throw new LinkNotFoundException(hash);
+        repository.deleteById(mayBeLink.get().getId());
     }
 
     public int deleteExpiredLinks() {

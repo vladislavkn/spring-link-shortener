@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import com.example.springlinksshortener.model.Link;
 
+import java.util.Optional;
+
 @Repository
 public interface LinkRepository extends JpaRepository<Link, Long> {
-    Link findByHash(String hash);
+    Optional<Link> findByHash(String hash);
 }
