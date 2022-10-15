@@ -12,45 +12,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springlinksshortener.dto.CreateLinkDTO;
-import com.example.springlinksshortener.exception.LinkExpiredException;
-import com.example.springlinksshortener.exception.LinkNotFoundException;
 import com.example.springlinksshortener.model.Link;
-import com.example.springlinksshortener.repository.LinkRepository;
+import com.example.springlinksshortener.service.LinkService;
 
 @RestController
 @RequestMapping("/links")
 public class LinkController {
-    private LinkRepository repository;
+    private LinkService linkService;
 
     @Autowired
-    public LinkController(LinkRepository repository) {
-        this.repository = repository;
+    public LinkController(LinkService linkService) {
+        this.linkService = linkService;
     }
 
     @GetMapping("/{hash}")
     public ResponseEntity<Link> getLinkByHash(@PathVariable String hash) {
-        Link link = repository.findByHash(hash);
-        if (link == null) throw new LinkNotFoundException(hash);
-
-        if(link.isExpired()) {
-            repository.deleteById(link.getId());
-            throw new LinkExpiredException(hash);
-        }
-
+        Link link = linkService.getLinkByHash(hash);
         return new ResponseEntity(link, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<Link> createLinkС(@RequestBody CreateLinkDTO createLinkDTO) {
-        Link link = repository.save(Link.fromDTO(createLinkDTO));
+        Link link = linkService.createLinkFromDTO(createLinkDTO);
         return new ResponseEntity(link, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{hash}")
     public ResponseEntity deleteLinkByHash(@PathVariable String hash) {
-        Link link = repository.findByHash(hash);
-        if (link == null) throw new LinkNotFoundException(hash);
-        repository.deleteById(link.getId());
+        linkService.deleteLinkByHash(hash);
         return new ResponseEntity(HttpStatus.OK);
     }
 }
