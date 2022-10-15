@@ -1,4 +1,4 @@
-package com.example.springlinksshortener.ScheduledTask;
+package com.example.springlinksshortener.scheduledTask;
 
 import com.example.springlinksshortener.service.LinkService;
 
